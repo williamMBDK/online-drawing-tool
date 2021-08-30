@@ -48,7 +48,6 @@ io.on('connection', socket => {
             cursors[roomname][newalias].alias = newalias;
             delete cursors[roomname][alias];
         }
-        console.log(cursors[roomname]);
         alias = newalias;
         io.to(roomname).emit('cursor-updates', cursors[roomname]);
     });

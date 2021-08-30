@@ -10,6 +10,7 @@ class Line extends Update {
         this.y1 = y1
         this.x2 = x2
         this.y2 = y2
+        this.color = "unset";
     }
 }
 
@@ -70,6 +71,15 @@ class CursorElement {
     }
 }
 
+class ColorPicker {
+    constructor() {
+        this.element = document.querySelector('#color');
+    }
+    getColor(cursor) {
+        return this.element.value;
+    }
+}
+
 class Canvas {
     constructor() {
         const container = document.getElementById("container");
@@ -81,6 +91,8 @@ class Canvas {
         this.canvas.width = w;
         this.canvas.height = h;
         this.ctx = this.canvas.getContext("2d");
+
+        this.colorpicker = new ColorPicker();
 
         this.updates = [];
         this.cursors = {};
@@ -116,6 +128,7 @@ class Canvas {
         }
     }
     addNewUpdate(update) {
+        if(update.type == "line") update.color = this.colorpicker.getColor();
         this.addUpdate(update);
         this.onNewUpdate(update);
     }
@@ -134,7 +147,7 @@ class Canvas {
         this.ctx.beginPath();
         this.ctx.moveTo(line.x1, line.y1);
         this.ctx.lineTo(line.x2, line.y2);
-        this.ctx.strokeStyle = "black";
+        this.ctx.strokeStyle = line.color;
         this.ctx.lineWidth = 2;
         this.ctx.stroke();
         this.ctx.closePath();
