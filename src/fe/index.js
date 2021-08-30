@@ -29,11 +29,6 @@ class Payload {
 
 const sendUpdate = update => socket.emit('new-update', new Payload(update))
 
-const receiveUpdates = updates => {
-    console.log(updates);
-    for(update of updates) canvas.addUpdate(update.update);
-}
-
 const onload = () => {
 
     document.getElementById('setalias').onclick = setalias;
@@ -55,8 +50,13 @@ const onload = () => {
         }
     });
 
-    socket.on('update', update => receiveUpdates([update]))
-    socket.on('updates', receiveUpdates)
+    socket.on('update', update => {
+        canvas.addUpdate(update);
+    });
+
+    socket.on('updates', updates => {
+        canvas.setUpdates(updates);
+    })
 
     socket.emit("set-roomname", roomname);
 

@@ -14,7 +14,7 @@ io.on('connection', (socket) => {
     updates[socket.id] = [];
     const getroom = () => {
         console.assert(socket.rooms.size == 1);
-        for(roomname of socket.rooms) {
+        for(const roomname of socket.rooms) {
             return roomname;
         }
     };
@@ -24,8 +24,9 @@ io.on('connection', (socket) => {
         if(!(roomname in updates)) updates[roomname] = [];
         socket.emit('updates', updates[roomname]);
     });
-    socket.on('new-update', update => {
+    socket.on('new-update', payload => {
         const room = getroom();
+        const update = payload.update;
         updates[room].push(update);
         socket.broadcast.to(room).emit('update', update);
     });
