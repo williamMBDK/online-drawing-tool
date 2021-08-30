@@ -40,7 +40,7 @@ const onload = () => {
         } else {
             return setalias();
         }
-    });
+    })();
 
     roomname = (() => {
         if (localStorage.getItem("roomname")) {
@@ -48,9 +48,10 @@ const onload = () => {
         } else {
             return setroomname();
         }
-    });
+    })();
 
     socket.on('update', update => {
+        console.log("recieving", update);
         canvas.addUpdate(update);
     });
 

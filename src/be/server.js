@@ -9,26 +9,22 @@ app.use(express.static('src/fe'))
 
 const updates = {};
 
-io.on('connection', (socket) => {
+io.on('connection', socket => {
     console.log('a user connected with id: ', socket.id);
-    updates[socket.id] = [];
-    const getroom = () => {
-        console.assert(socket.rooms.size == 1);
-        for(const roomname of socket.rooms) {
-            return roomname;
-        }
-    };
-    socket.on('set-roomname', roomname => {
-        socket.leave(getroom());
+    let roomname = socket.id;
+    updates[roomname] = [];
+    socket.on('set-roomname', newroomname => {
+        if(roomname != socket.id) socket.leave(roomname);
+        roomname = newroomname;
         socket.join(roomname)
         if(!(roomname in updates)) updates[roomname] = [];
         socket.emit('updates', updates[roomname]);
     });
     socket.on('new-update', payload => {
-        const room = getroom();
         const update = payload.update;
-        updates[room].push(update);
-        socket.broadcast.to(room).emit('update', update);
+        updates[roomname].push(update);
+        console.log(socket.id, roomname);
+        socket.to(roomname).emit('update', update);
     });
 });
 
