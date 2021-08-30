@@ -42,7 +42,6 @@ io.on('connection', socket => {
     });
 
     socket.on('set-alias', newalias => {
-        console.log(cursors[roomname]);
         if(alias in cursors[roomname]) {
             cursors[roomname][newalias] = cursors[roomname][alias];
             cursors[roomname][newalias].alias = newalias;
@@ -54,6 +53,10 @@ io.on('connection', socket => {
 
     socket.on('disconnect', function() {
         console.log("disconnect");
+        if(alias in cursors[roomname]) {
+            delete cursors[roomname][alias];
+        }
+        io.to(roomname).emit('cursor-updates', cursors[roomname]);
     });
 
 });

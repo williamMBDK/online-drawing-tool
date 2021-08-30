@@ -11,6 +11,7 @@ class Line extends Update {
         this.x2 = x2
         this.y2 = y2
         this.color = "unset";
+        this.linesize = -1;
     }
 }
 
@@ -81,12 +82,16 @@ class CursorElement {
     }
 }
 
-class ColorPicker {
+class StylePicker {
     constructor() {
-        this.element = document.querySelector('#color');
+        this.colorelement = document.querySelector('#color');
+        this.sizeelement = document.querySelector('#linesize');
     }
-    getColor(cursor) {
-        return this.element.value;
+    getColor() {
+        return this.colorelement.value;
+    }
+    getLineSize() {
+        return Number(this.sizeelement.value);
     }
 }
 
@@ -102,7 +107,7 @@ class Canvas {
         this.canvas.height = h;
         this.ctx = this.canvas.getContext("2d");
 
-        this.colorpicker = new ColorPicker();
+        this.stylepicker = new StylePicker();
 
         this.updates = [];
         this.cursors = {};
@@ -138,7 +143,10 @@ class Canvas {
         }
     }
     addNewUpdate(update) {
-        if(update.type == "line") update.color = this.colorpicker.getColor();
+        if(update.type == "line") {
+            update.color = this.stylepicker.getColor();
+            update.linesize = this.stylepicker.getLineSize();
+        }
         this.addUpdate(update);
         this.onNewUpdate(update);
     }
@@ -158,7 +166,8 @@ class Canvas {
         this.ctx.moveTo(line.x1, line.y1);
         this.ctx.lineTo(line.x2, line.y2);
         this.ctx.strokeStyle = line.color;
-        this.ctx.lineWidth = 2;
+        this.ctx.lineWidth = line.linesize;
+        this.ctx.lineCap = 'round';
         this.ctx.stroke();
         this.ctx.closePath();
     }
