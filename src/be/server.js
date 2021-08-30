@@ -51,6 +51,11 @@ io.on('connection', socket => {
         alias = newalias;
         io.to(roomname).emit('cursor-updates', cursors[roomname]);
     });
+
+    socket.on('disconnect', function() {
+        console.log("disconnect");
+    });
+
 });
 
 server.listen(port, () => {

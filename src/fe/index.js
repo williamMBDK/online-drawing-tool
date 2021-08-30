@@ -1,9 +1,17 @@
+const getRandomColor = () => {
+    const letters = '6789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * letters.length)];
+    }
+    return color;
+}
+
 let roomname;
 let alias;
-let cursorcolor = "green";
-
-const socket = io();
-const canvas = new Canvas();
+let cursorcolor = getRandomColor();
+let socket;
+let canvas;
 
 const setalias = () => {
     const newalias = prompt("Enter your alias: ");
@@ -11,6 +19,7 @@ const setalias = () => {
     alias = newalias;
     localStorage.setItem("alias", alias);
     socket.emit("set-alias", alias);
+    cursorcolor = getRandomColor();
     return alias;
 }
 
@@ -25,6 +34,11 @@ const setroomname = () => {
 
 const onload = () => {
 
+    if(socket) socket.disconnect();
+
+    socket = io();
+    canvas = new Canvas();
+
     document.getElementById('setalias').onclick = setalias;
     document.getElementById('setroomname').onclick = setroomname;
 
@@ -35,6 +49,7 @@ const onload = () => {
             return setalias();
         }
     })();
+    cursorcolor = getRandomColor();
 
     roomname = (() => {
         if (localStorage.getItem("roomname")) {
@@ -77,3 +92,4 @@ const onload = () => {
 }
 
 window.onload = onload;
+window.onresize = onload;

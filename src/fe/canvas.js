@@ -63,6 +63,7 @@ class MouseHandler {
 }
 
 class CursorElement {
+    
     constructor() {
         const container = document.getElementById("container");
         this.element = document.createElement("div");
@@ -70,7 +71,7 @@ class CursorElement {
         container.appendChild(this.element);
     }
     render(cursor) {
-        this.element.innerHTML = cursor.alias;
+        this.element.innerHTML = cursor.alias.substring(0, Math.min(3, cursor.alias.length));
         this.element.style.backgroundColor = cursor.color;
         this.element.style.left = cursor.pos.x + "px";
         this.element.style.top = cursor.pos.y + "px";
