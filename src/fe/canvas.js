@@ -20,6 +20,9 @@ class MouseHandler {
         this.onCursorMove = () => { }
         this.mousedown = false
         this.prevpos = { x: -1, y: -1 }
+
+        let hasmoved = false;
+
         const getPos = e => {
             const x = e.clientX - element.offsetLeft;
             const y = e.clientY - element.offsetTop;
@@ -32,12 +35,18 @@ class MouseHandler {
                 this.prevpos = pos;
             }
             this.onCursorMove(pos);
+            hasmoved = true;
         }, false);
         element.addEventListener("mousedown", e => {
+            hasmoved = false;
             this.mousedown = true;
             this.prevpos = getPos(e);
         }, false);
         element.addEventListener("mouseup", e => {
+            const pos = getPos(e);
+            if(!hasmoved) {
+                this.onLineDrawn(new Line(pos.x - 1, pos.y - 1, pos.x + 1, pos.y + 1));
+            }
             this.mousedown = false;
         }, false);
         element.addEventListener("mouseout", e => {
