@@ -1,0 +1,39 @@
+#history{
+    width: fit-content;
+    margin : auto;
+}
+
+.message{
+    background: white;
+    padding: 0.5vmax;
+    border-radius: 4px;
+    width : 30vw;
+    float : right;
+}
+
+.messageMetadata{
+    background: white;
+    padding: 3px;
+    border-radius: 4px;
+    margin-right: 4vw;
+}
+
+.message-container{
+    background: lightblue;
+    border-radius: 10px;
+    padding: 10px;
+    width: fit-content;
+    margin-bottom: 2vh;
+    display : flex;
+}
+
+#send-container{
+    width : fit-content;
+    margin : auto;
+}
+
+body {
+    margin : 0;
+    height : 100vh;
+    width : 100vw;
+}

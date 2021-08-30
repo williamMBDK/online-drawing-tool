@@ -1,0 +1,17 @@
+{
+    "name": "FE",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "dependencies": {
+        "http-server": "^0.12.1",
+        "socket.io": "^4.2.0"
+    },
+    "scripts": {
+        "start": "http-server src -p 8888",
+        "dev": "live-server src -p 8888"
+    },
+    "devDependencies": {
+        "live-server": "^1.2.1"
+    }
+}

@@ -1,0 +1,4 @@
+(cd BE
+npm run start) &
+(cd FE
+npm run start)
