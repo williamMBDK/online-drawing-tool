@@ -37,3 +37,15 @@ body {
     height : 100vh;
     width : 100vw;
 }
+
+.cursor {
+    width : 20px;
+    height : 20px;
+    position : absolute;
+}
+
+#top-panel {
+    position : absolute;
+    width : 100vw;
+    opacity : 0.5;
+}

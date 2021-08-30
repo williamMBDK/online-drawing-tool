@@ -16,6 +16,7 @@ class Line extends Update {
 class MouseHandler {
     constructor(element) {
         this.onLineDrawn = () => { }
+        this.onCursorMove = () => { }
         this.mousedown = false
         this.prevpos = { x: -1, y: -1 }
         const getPos = e => {
@@ -24,11 +25,12 @@ class MouseHandler {
             return { x, y };
         }
         element.addEventListener("mousemove", e => {
+            const pos = getPos(e);
             if (this.mousedown) {
-                const pos = getPos(e);
                 this.onLineDrawn(new Line(this.prevpos.x, this.prevpos.y, pos.x, pos.y));
                 this.prevpos = pos;
             }
+            this.onCursorMove(pos);
         }, false);
         element.addEventListener("mousedown", e => {
             this.mousedown = true;
@@ -39,26 +41,79 @@ class MouseHandler {
         }, false);
         element.addEventListener("mouseout", e => {
             this.mousedown = false;
+            this.onCursorMove({x : -1, y : -1});
         }, false);
     }
     setOnLineDrawn(func) {
-        this.onLineDrawn = func
+        this.onLineDrawn = func;
+    }
+    setOnCursorMove(func) {
+        this.onCursorMove = func;
+    }
+}
+
+class CursorElement {
+    constructor() {
+        const container = document.getElementById("container");
+        this.element = document.createElement("div");
+        this.element.className = "cursor";
+        container.appendChild(this.element);
+    }
+    render(cursor) {
+        this.element.innerHTML = cursor.alias;
+        this.element.style.backgroundColor = cursor.color;
+        this.element.style.left = cursor.pos.x + "px";
+        this.element.style.top = cursor.pos.y + "px";
+    }
+    destroy() {
+        this.element.remove();
     }
 }
 
 class Canvas {
     constructor() {
+        const container = document.getElementById("container");
+        const w = document.body.clientWidth;
+        const h = document.body.clientHeight;
+        container.style.width = w + "px";
+        container.style.height = h + "px";
         this.canvas = document.querySelector("#can");
-        this.canvas.width = document.body.clientWidth;
-        this.canvas.height = document.body.clientHeight;
+        this.canvas.width = w;
+        this.canvas.height = h;
         this.ctx = this.canvas.getContext("2d");
+
+        this.updates = [];
+        this.cursors = {};
+        this.cursorElements = {};
+
+        this.onNewUpdate = () => { }
+        this.onCursorMove = () => { }
 
         this.mousehandler = new MouseHandler(this.canvas);
         this.mousehandler.setOnLineDrawn(this.addNewUpdate.bind(this));
-
-        this.updates = []
-
-        this.onNewUpdate = () => { }
+        this.mousehandler.setOnCursorMove(pos => this.onCursorMove(pos));
+    }
+    updateCursor(cursor) {
+        this.cursors[cursor.alias] = cursor;
+        this.renderCursors();
+    }
+    setCursors(cursors) {
+        this.cursors = cursors;
+        this.renderCursors();
+    }
+    renderCursors() {
+        for(const alias of Object.keys(this.cursorElements)) {
+            if((!(alias in this.cursors)) || this.cursors[alias].pos.x == -1 || this.cursors[alias].pos.y == -1) {
+                this.cursorElements[alias].destroy();
+                delete this.cursorElements[alias];
+            }
+        }
+        for(const cursor of Object.values(this.cursors)) {
+            if(cursor.pos.x == -1 || cursor.pos.y == -1) continue;
+            if(cursor.alias == alias) continue;
+            if(!(cursor.alias in this.cursorElements)) this.cursorElements[cursor.alias] = new CursorElement();
+            this.cursorElements[cursor.alias].render(cursor);
+        }
     }
     addNewUpdate(update) {
         this.addUpdate(update);
@@ -86,5 +141,8 @@ class Canvas {
     }
     setOnNewUpdate(func) {
         this.onNewUpdate = func;
+    }
+    setOnCursorMove(func) {
+        this.onCursorMove = func;
     }
 }

@@ -1,5 +1,7 @@
 let roomname;
 let alias;
+let cursorcolor = "green";
+
 const socket = io();
 const canvas = new Canvas();
 
@@ -8,6 +10,7 @@ const setalias = () => {
     if (newalias == null) return;
     alias = newalias;
     localStorage.setItem("alias", alias);
+    socket.emit("set-alias", alias);
     return alias;
 }
 
@@ -19,15 +22,6 @@ const setroomname = () => {
     socket.emit("set-roomname", roomname);
     return roomname;
 }
-
-class Payload {
-    constructor(update) {
-        this.alias = alias;
-        this.update = update;
-    }
-};
-
-const sendUpdate = update => socket.emit('new-update', new Payload(update))
 
 const onload = () => {
 
@@ -51,17 +45,35 @@ const onload = () => {
     })();
 
     socket.on('update', update => {
-        console.log("recieving", update);
         canvas.addUpdate(update);
     });
 
     socket.on('updates', updates => {
         canvas.setUpdates(updates);
-    })
+    });
 
+    socket.on('cursor-update', cursor => {
+        canvas.updateCursor(cursor);
+    });
+
+    socket.on('cursor-updates', cursors => {
+        canvas.setCursors(cursors);
+    });
+
+    socket.emit("set-alias", alias);
     socket.emit("set-roomname", roomname);
 
-    canvas.setOnNewUpdate(sendUpdate.bind(this))
+    canvas.setOnNewUpdate(update => {
+        socket.emit('new-update', update);
+    });
+
+    canvas.setOnCursorMove(pos => {
+        socket.emit("set-cursor", {
+            pos,
+            alias,
+            color : cursorcolor
+        });
+    });
 }
 
 window.onload = onload;
