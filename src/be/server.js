@@ -7,17 +7,30 @@ const port = 8888;
 
 app.use(express.static('src/fe'))
 
-const updates = [];
+const updates = {};
 
 io.on('connection', (socket) => {
-  console.log('a user connected');
-  socket.emit('updates', updates);
-  socket.on('new-update', update => {
-    updates.push(update);
-    socket.broadcast.emit('update', update);
-  });
+    console.log('a user connected with id: ', socket.id);
+    updates[socket.id] = [];
+    const getroom = () => {
+        console.assert(socket.rooms.size == 1);
+        for(roomname of socket.rooms) {
+            return roomname;
+        }
+    };
+    socket.on('set-roomname', roomname => {
+        socket.leave(getroom());
+        socket.join(roomname)
+        if(!(roomname in updates)) updates[roomname] = [];
+        socket.emit('updates', updates[roomname]);
+    });
+    socket.on('new-update', update => {
+        const room = getroom();
+        updates[room].push(update);
+        socket.broadcast.to(room).emit('update', update);
+    });
 });
 
 server.listen(port, () => {
-  console.log(`listening on *:${port}`);
+    console.log(`listening on *:${port}`);
 });
