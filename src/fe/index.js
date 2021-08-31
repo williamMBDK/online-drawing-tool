@@ -28,7 +28,7 @@ let canvas;
 let statusbarUpdater;
 
 const updateStatusBar = () => {
-  document.getElementById("alias-p").innerHTML = `Alias: ${escapeXml(alias)}`;
+  document.getElementById("alias-p").innerHTML = `Alias: ${escapeXml(alias.substr(0, alias.length - 14))}`;
   document.getElementById("room-p").innerHTML = `Room: ${escapeXml(roomname)}`;
   if (socket.connected) {
     document.getElementById("status-p").innerHTML = "Status: connected";
@@ -59,6 +59,7 @@ const setalias = forceprompt => {
   }
   alias = newalias;
   localStorage.setItem("alias", alias);
+  alias += "    " + randomstring(10);
   socket.emit("set-alias", alias);
   cursorcolor = getRandomColor();
   socket.emit("set-cursor", {

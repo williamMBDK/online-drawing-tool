@@ -25,4 +25,3 @@ socket.io and a html canvas.
 - optimize speed
 - erase
 - dont disconnect when zooming
-- duplicate aliases?
