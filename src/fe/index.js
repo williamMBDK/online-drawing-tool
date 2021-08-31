@@ -69,12 +69,25 @@ const setalias = forceprompt => {
   updateStatusBar();
 }
 
+const randomstring = length => {
+  var result = '';
+  var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  var charactersLength = characters.length;
+  for (var i = 0; i < length; i++) {
+    result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}
+
 const setroomname = forceprompt => {
   let newroomname = getQueryVariable("room");
   if (newroomname == null || (!newroomname.replace(/\s/g, '').length) || forceprompt) {
     newroomname = null;
     while (newroomname == null || (!newroomname.replace(/\s/g, '').length)) {
-      newroomname = prompt("Enter roomname: ");
+      newroomname = prompt("Enter roomname (random for random roomname): ");
+    }
+    if (newroomname == "random") {
+      newroomname = randomstring(30);
     }
     window.location.search = `?room=${newroomname}`;
   }

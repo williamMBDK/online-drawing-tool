@@ -265,6 +265,7 @@ class Canvas {
   }
 
   updateCursor(cursor) {
+    console.log(cursor)
     this.cursors[cursor.alias] = cursor;
     this.renderCursors();
   }
@@ -283,7 +284,6 @@ class Canvas {
       if (cursor.pos.x == -1 || cursor.pos.y == -1) continue;
       if (cursor.alias == alias) continue;
       if (!(cursor.alias in this.cursorElements)) this.cursorElements[cursor.alias] = new CursorElement();
-      console.log(cursor);
       this.cursorElements[cursor.alias].render({
         ...cursor,
         pos: this.panManager.getCanvasPosition(cursor.pos),

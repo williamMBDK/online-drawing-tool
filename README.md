@@ -22,6 +22,7 @@ socket.io and a html canvas.
 
 ## Todo
 - remove eventhandlers in client
-- reset
 - optimize speed
 - erase
+- dont disconnect when zooming
+- duplicate aliases?
