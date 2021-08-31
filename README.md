@@ -7,9 +7,10 @@ Web-based generic drawing tool with collaboration features.
 - You set your alias and other people in a room can see your cursor live.
 
 ## Drawing features
-- Choose different colors
-- Choose different sized pens
-- Pan and zoom
+- Choose different colors.
+- Choose different sized pens.
+- Pan and zoom.
+- Undo.
 
 ## How it works?
 socket.io and a html canvas.
@@ -23,3 +24,4 @@ socket.io and a html canvas.
 - remove eventhandlers in client
 - reset
 - optimize speed
+- erase

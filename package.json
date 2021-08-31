@@ -5,11 +5,13 @@
   "license": "MIT",
   "dependencies": {
     "express": "^4.17.1",
-    "nodemon": "^2.0.12",
     "socket.io": "^4.2.0"
   },
   "scripts": {
     "start": "node src/be/server.js",
     "dev": "nodemon src/be/server.js"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12"
   }
 }
