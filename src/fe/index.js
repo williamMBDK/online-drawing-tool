@@ -39,9 +39,6 @@ const onload = () => {
     socket = io();
     canvas = new Canvas();
 
-    document.getElementById('setalias').onclick = setalias;
-    document.getElementById('setroomname').onclick = setroomname;
-
     alias = (() => {
         if (localStorage.getItem("alias")) {
             return localStorage.getItem("alias");
@@ -58,6 +55,12 @@ const onload = () => {
             return setroomname();
         }
     })();
+
+    document.getElementById('setalias').onclick = setalias;
+    document.getElementById('setroomname').onclick = setroomname;
+    document.getElementById('undobtn').onclick = () => {
+        socket.emit('undo');
+    };
 
     socket.on('update', update => {
         canvas.addUpdate(update);

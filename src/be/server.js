@@ -14,7 +14,7 @@ io.on('connection', socket => {
 
     console.log('a user connected with id: ', socket.id);
 
-    let roomname = socket.id;
+    let roomname = "freeforall";
     let alias = "unset";
     updates[roomname] = [];
     cursors[roomname] = {};
@@ -32,8 +32,25 @@ io.on('connection', socket => {
     });
 
     socket.on('new-update', update => {
+        update.id = socket.id;
         updates[roomname].push(update);
         socket.to(roomname).emit('update', update);
+    });
+
+    socket.on('undo', () => {
+        const upds = updates[roomname];
+        let cntdeleted = 0;
+        const newupdates = [];
+        for(let i = upds.length - 1; i >= 0; i--) {
+            if(cntdeleted <= 30 && upds[i].id == socket.id) {
+                cntdeleted++;
+            } else {
+                newupdates.push(upds[i]);
+            }
+        }
+        newupdates.reverse();
+        updates[roomname] = newupdates;
+        io.to(roomname).emit('updates', updates[roomname]);
     });
 
     socket.on('set-cursor', cursor => {
