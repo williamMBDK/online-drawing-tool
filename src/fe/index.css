@@ -96,3 +96,7 @@ body {
   padding : 1px 6px;
   transition-duration: 0.4s;
 }
+
+#status-p {
+  font-weight: bold;
+}
