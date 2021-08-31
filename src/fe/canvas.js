@@ -250,10 +250,18 @@ class Canvas {
 
     this.mousehandler = new MouseHandler(this.canvas);
     this.mousehandler.setOnLineDrawn(this.addNewUpdate.bind(this));
-    this.mousehandler.setOnCursorMove(pos => this.onCursorMove(pos));
+
 
     this.panManager = new PanManager(this.mousehandler); // also handles zoom
     this.panManager.setOnPan(this.redraw.bind(this));
+
+    this.mousehandler.setOnCursorMove(pos => {
+      if (pos.x == -1 || pos.y == -1) {
+        this.onCursorMove(pos);
+      } else {
+        this.onCursorMove(this.panManager.getRealPosition(pos));
+      }
+    });
   }
 
   updateCursor(cursor) {
@@ -275,7 +283,11 @@ class Canvas {
       if (cursor.pos.x == -1 || cursor.pos.y == -1) continue;
       if (cursor.alias == alias) continue;
       if (!(cursor.alias in this.cursorElements)) this.cursorElements[cursor.alias] = new CursorElement();
-      this.cursorElements[cursor.alias].render(cursor);
+      console.log(cursor);
+      this.cursorElements[cursor.alias].render({
+        ...cursor,
+        pos: this.panManager.getCanvasPosition(cursor.pos),
+      });
     }
   }
   setDimensions() {
