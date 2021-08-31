@@ -12,7 +12,9 @@ const cursors = {};
 
 io.on('connection', socket => {
 
-  console.log('a user connected with id: ', socket.id);
+  console.log('A user connected');
+  console.log('Number of clients: ', io.sockets.sockets.size);
+  console.log();
 
   let roomname = "freeforall";
   let alias = "unset";
@@ -74,7 +76,11 @@ io.on('connection', socket => {
   });
 
   socket.on('disconnect', function() {
-    console.log("disconnect");
+
+    console.log("A user disconnected");
+    console.log('Number of clients: ', io.sockets.sockets.size)
+    console.log();
+
     if (alias in cursors[roomname]) {
       delete cursors[roomname][alias];
     }
