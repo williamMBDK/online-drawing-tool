@@ -34,10 +34,10 @@ const setroomname = () => {
 
 const onload = () => {
 
+    if(!canvas) canvas = new Canvas();
     if(socket) socket.disconnect();
-
+    canvas.redraw();
     socket = io();
-    canvas = new Canvas();
 
     alias = (() => {
         if (localStorage.getItem("alias")) {

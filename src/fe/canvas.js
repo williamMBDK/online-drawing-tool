@@ -97,14 +97,8 @@ class StylePicker {
 
 class Canvas {
     constructor() {
-        const container = document.getElementById("container");
-        const w = document.body.clientWidth;
-        const h = document.body.clientHeight;
-        container.style.width = w + "px";
-        container.style.height = h + "px";
         this.canvas = document.querySelector("#can");
-        this.canvas.width = w;
-        this.canvas.height = h;
+        this.setDimensions();
         this.ctx = this.canvas.getContext("2d");
 
         this.stylepicker = new StylePicker();
@@ -141,6 +135,20 @@ class Canvas {
             if(!(cursor.alias in this.cursorElements)) this.cursorElements[cursor.alias] = new CursorElement();
             this.cursorElements[cursor.alias].render(cursor);
         }
+    }
+    setDimensions() {
+        const container = document.getElementById("container");
+        const w = document.body.clientWidth;
+        const h = document.body.clientHeight;
+        container.style.width = w + "px";
+        container.style.height = h + "px";
+        this.canvas.width = w;
+        this.canvas.height = h;
+    }
+    redraw() {
+        this.setDimensions();
+        this.setUpdates(this.updates);
+        this.setCursors(this.cursors);
     }
     addNewUpdate(update) {
         if(update.type == "line") {
