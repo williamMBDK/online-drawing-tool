@@ -113,6 +113,7 @@ const onload = () => {
 
   socket.on('updates', updates => {
     canvas.setUpdates(updates);
+    canvas.redraw(); // here we are redrawing twice, not necessary
   });
 
   socket.on('cursor-update', cursor => {

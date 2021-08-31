@@ -342,11 +342,11 @@ class Canvas {
     for (const update of updates) this.addUpdate(update);
   }
   addUpdate(update) {
-    this.updates.push(update)
+    this.updates.push(update);
     if (update.type == "line") {
-      this.addLineToCanvas(update)
+      this.addLineToCanvas(update);
     } else if (update.type == "circle") {
-      this.addCircleToCanvas(update)
+      this.addCircleToCanvas(update);
     }
   }
   addCircleToCanvas(circ) {
