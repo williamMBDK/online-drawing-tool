@@ -63,6 +63,10 @@ body {
   color : #303030;
 }
 
+#top-panel.darkmode {
+  background-color: #777777;
+}
+
 #top-panel > button, #top-panel > input {
   text-align: center;
   text-decoration: none;
@@ -73,30 +77,46 @@ body {
   cursor: pointer;
   background-color: white;
   color: inherit;
-  border: 2px solid #e7e7e7;
-  border-radius: 10%;
+  border: 0;
+  border-radius: 5px;
+  padding : 5px;
+}
+
+#top-panel.darkmode > button, #top-panel.darkmode > input {
+  background-color: #4c4c4c;
+  color : white;
 }
 
 #top-panel > button:hover, #top-panel > input:hover {
   background-color: #c9c9c9;
 }
 
-#top-panel-info {
+#top-panel.darkmode > button:hover, #top-panel.darkmode > input:hover {
+  background-color: black;
+}
+
+#top-panel > #top-panel-info {
   flex : 1;
   padding-left : 1%;
 }
 
-#top-panel-info > p {
+#top-panel > #top-panel-info > p {
   display : inline-block;
   font-size: 16px;
   margin: 4px 2px;
   background-color: white;
-  border-radius: 10%;
-  border: 2px solid #e7e7e7;
+  border-radius: 5px;
   padding : 1px 6px;
   transition-duration: 0.4s;
+  padding : 5px;
+}
+
+#top-panel.darkmode > #top-panel-info > p {
+  background-color: #4c4c4c;
+  color : white;
 }
 
 #status-p {
   font-weight: bold;
+  color : #303030 !important;
 }

@@ -24,4 +24,3 @@ socket.io and a html canvas.
 - remove eventhandlers in client
 - optimize speed
 - erase
-- dont disconnect when zooming

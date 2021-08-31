@@ -15,6 +15,17 @@ class Line extends Update {
   }
 }
 
+class Circle extends Update {
+  constructor(x, y, radius) {
+    super("circle")
+    this.x = x;
+    this.y = y;
+    this.color = "unset";
+    this.radius = radius;
+    this.linesize = -1;
+  }
+}
+
 class MouseHandler {
   constructor(element) {
     this.onLineDrawn = () => { }
@@ -94,7 +105,7 @@ class MouseHandler {
       }
       this.mousePosition = pos;
     }, false);
-    element.addEventListener("mouseout", e => {
+    element.addEventListener("mouseout", _ => {
       drawState.mousedown = false;
       panState.mousedown = false;
       this.onCursorMove({ x: -1, y: -1 });
@@ -236,7 +247,6 @@ class PanManager {
 class Canvas {
   constructor() {
     this.canvas = document.querySelector("#can");
-    this.setDimensions();
     this.ctx = this.canvas.getContext("2d");
 
     this.stylepicker = new StylePicker();
@@ -251,7 +261,6 @@ class Canvas {
     this.mousehandler = new MouseHandler(this.canvas);
     this.mousehandler.setOnLineDrawn(this.addNewUpdate.bind(this));
 
-
     this.panManager = new PanManager(this.mousehandler); // also handles zoom
     this.panManager.setOnPan(this.redraw.bind(this));
 
@@ -262,10 +271,11 @@ class Canvas {
         this.onCursorMove(this.panManager.getRealPosition(pos));
       }
     });
+
+    this.redraw();
   }
 
   updateCursor(cursor) {
-    console.log(cursor)
     this.cursors[cursor.alias] = cursor;
     this.renderCursors();
   }
@@ -301,6 +311,11 @@ class Canvas {
   }
   redraw() {
     this.setDimensions();
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    if (options.darkmode) {
+      this.ctx.fillStyle = options.canvasBackgroundColor;
+      this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
     this.setUpdates(this.updates);
     this.setCursors(this.cursors);
   }
@@ -312,12 +327,17 @@ class Canvas {
       update.x2 = p2.x, update.y2 = p2.y;
       update.color = this.stylepicker.getColor();
       update.linesize = this.panManager.getRealLength(this.stylepicker.getLineSize());
+    } else if (update.type == "circle") {
+      const pos = this.panManager.getRealPosition({ x: update.x, y: update.y });
+      update.x = pos.x, update.y = pos.y;
+      update.color = this.stylepicker.getColor();
+      update.linesize = this.panManager.getRealLength(this.stylepicker.getLineSize());
+      update.radius = this.panManager.getRealLength(update.radius);
     }
     this.addUpdate(update);
     this.onNewUpdate(update);
   }
   setUpdates(updates) {
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     this.updates = [];
     for (const update of updates) this.addUpdate(update);
   }
@@ -325,7 +345,20 @@ class Canvas {
     this.updates.push(update)
     if (update.type == "line") {
       this.addLineToCanvas(update)
+    } else if (update.type == "circle") {
+      this.addCircleToCanvas(update)
     }
+  }
+  addCircleToCanvas(circ) {
+    this.ctx.beginPath();
+    const pos = this.panManager.getCanvasPosition({ x: circ.x, y: circ.y });
+    const radius = this.panManager.getCanvasLength(circ.radius);
+    this.ctx.arc(pos.x, pos.y, radius, 0, 2 * Math.PI);
+    this.ctx.strokeStyle = circ.color;
+    this.ctx.lineWidth = this.panManager.getCanvasLength(circ.linesize);
+    this.ctx.lineCap = 'round';
+    this.ctx.stroke();
+    this.ctx.closePath();
   }
   addLineToCanvas(line) {
     this.ctx.beginPath();
