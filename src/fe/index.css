@@ -52,14 +52,15 @@ body {
 }
 
 #top-panel {
-    position : absolute;
-    width : 100vw;
-    height : 3vh;
-    display: inline-flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    background-color: #ebebeb;
+  position : absolute;
+  width : 100vw;
+  height : 3vh;
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background-color: #ebebeb;
+  color : #303030;
 }
 
 #top-panel > button, #top-panel > input {
@@ -71,11 +72,27 @@ body {
   transition-duration: 0.4s;
   cursor: pointer;
   background-color: white;
-  color: black;
+  color: inherit;
   border: 2px solid #e7e7e7;
   border-radius: 10%;
 }
 
 #top-panel > button:hover, #top-panel > input:hover {
   background-color: #c9c9c9;
+}
+
+#top-panel-info {
+  flex : 1;
+  padding-left : 1%;
+}
+
+#top-panel-info > p {
+  display : inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  background-color: white;
+  border-radius: 10%;
+  border: 2px solid #e7e7e7;
+  padding : 1px 6px;
+  transition-duration: 0.4s;
 }
