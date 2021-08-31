@@ -7,6 +7,19 @@ const getRandomColor = () => {
   return color;
 }
 
+const escapeXml = unsafe => {
+  if (unsafe == null) return null;
+  return unsafe.replace(/[<>&'"]/g, function(c) {
+    switch (c) {
+      case '<': return '&lt;';
+      case '>': return '&gt;';
+      case '&': return '&amp;';
+      case '\'': return '&apos;';
+      case '"': return '&quot;';
+    }
+  });
+}
+
 let roomname;
 let alias;
 let cursorcolor = getRandomColor();
@@ -15,8 +28,8 @@ let canvas;
 let statusbarUpdater;
 
 const updateStatusBar = () => {
-  document.getElementById("alias-p").innerHTML = `Alias: ${alias}`;
-  document.getElementById("room-p").innerHTML = `Room: ${roomname}`;
+  document.getElementById("alias-p").innerHTML = `Alias: ${escapeXml(alias)}`;
+  document.getElementById("room-p").innerHTML = `Room: ${escapeXml(roomname)}`;
   if (socket.connected) {
     document.getElementById("status-p").innerHTML = "Status: connected";
     document.getElementById("status-p").style.backgroundColor = "#59cf44";
