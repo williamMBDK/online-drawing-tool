@@ -100,9 +100,8 @@ const setroomname = forceprompt => {
 const onload = () => {
 
   if (!canvas) canvas = new Canvas();
-  if (socket) socket.disconnect();
+  if (!socket) socket = io();
   canvas.redraw();
-  socket = io();
 
   cursorcolor = getRandomColor();
   setalias(false);
