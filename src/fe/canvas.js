@@ -19,40 +19,85 @@ class MouseHandler {
     constructor(element) {
         this.onLineDrawn = () => { }
         this.onCursorMove = () => { }
-        this.mousedown = false
-        this.prevpos = { x: -1, y: -1 }
+        this.onPan = () => { }
+        this.mousePosition = {x : -1, y : -1};
 
-        let hasmoved = false;
+        const drawState = {
+            mousedown : false,
+            prevpos : { x: -1, y: -1 },
+            hasmoved : false
+        };
+
+        const panState = {
+            mousedown : false,
+            prevpos : { x: -1, y: -1 },
+        };
 
         const getPos = e => {
             const x = e.clientX - element.offsetLeft;
             const y = e.clientY - element.offsetTop;
             return { x, y };
-        }
+        };
+        const isPanning = e => {
+            return e.which == 1 && (e.altKey || e.ctrlKey || e.shiftKey);
+        };
+        const isDrawing = e => {
+            return (!isPanning(e)) && e.which == 1;
+        };
         element.addEventListener("mousemove", e => {
             const pos = getPos(e);
-            if (this.mousedown) {
-                this.onLineDrawn(new Line(this.prevpos.x, this.prevpos.y, pos.x, pos.y));
-                this.prevpos = pos;
+            
+            // drawing
+            if (drawState.mousedown) {
+                this.onLineDrawn(new Line(drawState.prevpos.x, drawState.prevpos.y, pos.x, pos.y));
+                drawState.prevpos = pos;
+                drawState.hasmoved = true;
             }
+
+            // panning
+            if (panState.mousedown) {
+                this.onPan(panState.prevpos, pos);
+                panState.prevpos = pos;
+            }
+            
+            // general mouse movement handler
             this.onCursorMove(pos);
-            hasmoved = true;
+            this.mousePosition = pos;
         }, false);
         element.addEventListener("mousedown", e => {
-            hasmoved = false;
-            this.mousedown = true;
-            this.prevpos = getPos(e);
+            const pos = getPos(e);
+            if(isDrawing(e)) {
+                drawState.hasmoved = false;
+                drawState.mousedown = true;
+                drawState.prevpos = pos;
+            } else if(isPanning(e)) {
+                panState.mousedown = true;
+                panState.prevpos = pos;
+            }
+            this.mousePosition = pos;
         }, false);
         element.addEventListener("mouseup", e => {
             const pos = getPos(e);
-            if(!hasmoved) {
-                this.onLineDrawn(new Line(pos.x - 1, pos.y - 1, pos.x + 1, pos.y + 1));
+            if(isDrawing(e) || isPanning(e)) {
+                // drawing 
+                if(drawState.mousedown) {
+                    if(!drawState.hasmoved) {
+                        this.onLineDrawn(new Line(pos.x - 1, pos.y - 1, pos.x + 1, pos.y + 1));
+                    }
+                    drawState.mousedown = false;
+                }
+                // panning
+                if(panState.mousedown) {
+                    panState.mousedown = false;
+                }
             }
-            this.mousedown = false;
+            this.mousePosition = pos;
         }, false);
         element.addEventListener("mouseout", e => {
-            this.mousedown = false;
+            drawState.mousedown = false;
+            panState.mousedown = false;
             this.onCursorMove({x : -1, y : -1});
+            this.mousePosition = {x : -1, y : -1};
         }, false);
     }
     setOnLineDrawn(func) {
@@ -60,6 +105,12 @@ class MouseHandler {
     }
     setOnCursorMove(func) {
         this.onCursorMove = func;
+    }
+    setOnPan(func) {
+        this.onPan = func;
+    }
+    getMousePosition() {
+        return this.mousePosition;
     }
 }
 
@@ -95,6 +146,92 @@ class StylePicker {
     }
 }
 
+class ZoomManager {
+    constructor() {
+        console.assert(!window.onscroll);
+        this.zoom = 6;
+        this.onZoom = () => {};
+        window.onwheel = e => {  
+            if(e.deltaY > 0) {
+                this.zoom *= 1.1;
+                if(this.zoom > 100) this.zoom = 100;
+                this.onZoom();
+            } else if(e.deltaY < 0) {
+                this.zoom /= 1.1;
+                if(this.zoom < 1) this.zoom = 1;
+                this.onZoom();
+            }
+        }
+    }
+    reset() {
+        this.zoom = 6;
+    }
+    getZoomFactor() {
+        return this.zoom;
+    }
+    setOnZoom(func) {
+        this.onZoom = func;
+    }
+}
+
+class PanManager {
+    constructor(mousehandler) {
+        this.onPan = () => {};
+        this.offset = {
+            dx : 0,
+            dy : 0,
+        };
+        this.zoomManager = new ZoomManager();
+        let prevzoom = this.zoomManager.getZoomFactor();
+        this.zoomManager.setOnZoom(() => {
+            const mousePos = mousehandler.getMousePosition();
+            if(mousePos.x != -1 && mousePos.y != -1) {
+                const newMousePos = this.getCanvasPosition(this.getRealPosition(mousePos, prevzoom));
+                const dx = newMousePos.x - mousePos.x;
+                const dy = newMousePos.y - mousePos.y;
+                this.offset.dx += dx;
+                this.offset.dy += dy;
+            }
+            prevzoom = this.zoomManager.getZoomFactor();
+            this.onPan();
+        });
+        mousehandler.setOnPan((p1, p2) => {
+            const dx = p1.x - p2.x;
+            const dy = p1.y - p2.y;
+            this.offset.dx += dx;
+            this.offset.dy += dy;
+            this.onPan();
+        });
+        const resetElement = document.querySelector('#resetzoomoffset');
+        resetElement.onclick = () => {
+            this.offset = {
+                dx : 0,
+                dy : 0,
+            }
+            this.zoomManager.reset();
+            prevzoom = this.zoomManager.getZoomFactor();
+            this.onPan();
+        }
+    }
+    setOnPan(func) {
+        this.onPan = func;
+    }
+    getRealPosition(pos, zoomfactor = this.zoomManager.getZoomFactor()) {
+        return { x : (pos.x + this.offset.dx) * zoomfactor, y : (pos.y + this.offset.dy) * zoomfactor };
+    }
+    getCanvasPosition(pos, zoomfactor = this.zoomManager.getZoomFactor()) {
+        return { x : pos.x / zoomfactor - this.offset.dx, y : pos.y / zoomfactor - this.offset.dy };
+    }
+    getRealLength(len) {
+        const zoomfactor = this.zoomManager.getZoomFactor();
+        return len * zoomfactor;
+    }
+    getCanvasLength(len) {
+        const zoomfactor = this.zoomManager.getZoomFactor();
+        return len / zoomfactor;
+    }
+}
+
 class Canvas {
     constructor() {
         this.canvas = document.querySelector("#can");
@@ -102,7 +239,7 @@ class Canvas {
         this.ctx = this.canvas.getContext("2d");
 
         this.stylepicker = new StylePicker();
-
+        
         this.updates = [];
         this.cursors = {};
         this.cursorElements = {};
@@ -113,7 +250,11 @@ class Canvas {
         this.mousehandler = new MouseHandler(this.canvas);
         this.mousehandler.setOnLineDrawn(this.addNewUpdate.bind(this));
         this.mousehandler.setOnCursorMove(pos => this.onCursorMove(pos));
+
+        this.panManager = new PanManager(this.mousehandler); // also handles zoom
+        this.panManager.setOnPan(this.redraw.bind(this));
     }
+
     updateCursor(cursor) {
         this.cursors[cursor.alias] = cursor;
         this.renderCursors();
@@ -152,8 +293,12 @@ class Canvas {
     }
     addNewUpdate(update) {
         if(update.type == "line") {
+            const p1 = this.panManager.getRealPosition({x : update.x1, y : update.y1});
+            const p2 = this.panManager.getRealPosition({x : update.x2, y : update.y2});
+            update.x1 = p1.x, update.y1 = p1.y;
+            update.x2 = p2.x, update.y2 = p2.y;
             update.color = this.stylepicker.getColor();
-            update.linesize = this.stylepicker.getLineSize();
+            update.linesize = this.panManager.getRealLength(this.stylepicker.getLineSize());
         }
         this.addUpdate(update);
         this.onNewUpdate(update);
@@ -171,10 +316,12 @@ class Canvas {
     }
     addLineToCanvas(line) {
         this.ctx.beginPath();
-        this.ctx.moveTo(line.x1, line.y1);
-        this.ctx.lineTo(line.x2, line.y2);
+        const p1 = this.panManager.getCanvasPosition({x : line.x1, y : line.y1});
+        const p2 = this.panManager.getCanvasPosition({x : line.x2, y : line.y2});
+        this.ctx.moveTo(p1.x, p1.y);
+        this.ctx.lineTo(p2.x, p2.y);
         this.ctx.strokeStyle = line.color;
-        this.ctx.lineWidth = line.linesize;
+        this.ctx.lineWidth = this.panManager.getCanvasLength(line.linesize);
         this.ctx.lineCap = 'round';
         this.ctx.stroke();
         this.ctx.closePath();
