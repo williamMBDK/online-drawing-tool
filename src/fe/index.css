@@ -54,7 +54,7 @@ body {
 #top-panel {
   position : absolute;
   width : 100vw;
-  height : 3vh;
+  height : 5vh;
   display: inline-flex;
   flex-direction: row;
   align-items: center;

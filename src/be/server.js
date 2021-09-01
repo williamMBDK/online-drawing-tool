@@ -75,7 +75,7 @@ io.on('connection', socket => {
     io.to(roomname).emit('updates', updates[roomname]);
   });
 
-  socket.on('disconnect', function() {
+  socket.on('disconnect', () => {
 
     console.log("A user disconnected");
     console.log('Number of clients: ', io.sockets.sockets.size)

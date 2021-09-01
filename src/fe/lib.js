@@ -254,12 +254,15 @@ class Canvas {
     this.updates = [];
     this.cursors = {};
     this.cursorElements = {};
+    this.isDrawingEnabled = true;
 
     this.onNewUpdate = () => { }
     this.onCursorMove = () => { }
 
     this.mousehandler = new MouseHandler(this.canvas);
-    this.mousehandler.setOnLineDrawn(this.addNewUpdate.bind(this));
+    this.mousehandler.setOnLineDrawn(line => {
+      if (this.isDrawingEnabled) this.addNewUpdate(line)
+    });
 
     this.panManager = new PanManager(this.mousehandler); // also handles zoom
     this.panManager.setOnPan(this.redraw.bind(this));
@@ -377,5 +380,11 @@ class Canvas {
   }
   setOnCursorMove(func) {
     this.onCursorMove = func;
+  }
+  disableDrawing() {
+    this.isDrawingEnabled = false;
+  }
+  enableDrawing() {
+    this.isDrawingEnabled = true;
   }
 }
